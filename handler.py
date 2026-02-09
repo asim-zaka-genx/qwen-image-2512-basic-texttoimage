@@ -164,35 +164,36 @@ def upload_input_images(images):
 def inject_prompt_into_workflow(workflow, prompt, negative_prompt="", seed=None):
     """Inject prompt text into workflow's CLIPTextEncode nodes"""
     modified = json.loads(json.dumps(workflow))  # Deep copy
-    
+
+    # Generate random seed if not provided
+    if seed is None:
+        import random
+        seed = random.randint(0, 2147483647)
+
     for node_id, node in modified.items():
         class_type = node.get("class_type", "")
-        
-        # Update positive prompt (node 6 typically)
+
+        # Update prompt nodes - use _meta.title to identify positive vs negative
         if class_type == "CLIPTextEncode":
-            inputs = node.get("inputs", {})
-            current_text = inputs.get("text", "")
-            
-            # Check if this is positive or negative prompt node
-            # Usually negative prompt nodes have empty or negative keywords
-            if current_text == "" or any(neg in current_text.lower() for neg in ["blurry", "bad", "ugly", "distorted"]):
-                if negative_prompt:
-                    inputs["text"] = negative_prompt
+            title = node.get("_meta", {}).get("title", "").lower()
+            if "negative" in title:
+                node["inputs"]["text"] = negative_prompt
             else:
-                if prompt:
-                    inputs["text"] = prompt
-        
-        # Update seed in KSampler
-        if class_type == "KSampler" and seed is not None:
-            node.get("inputs", {})["seed"] = seed
-    
+                node["inputs"]["text"] = prompt
+
+        # Update seed in KSampler - only if it's a direct value (not a node reference)
+        if class_type == "KSampler":
+            current_seed = node.get("inputs", {}).get("seed")
+            if isinstance(current_seed, (int, float)):
+                node["inputs"]["seed"] = seed
+
     return modified
 
 
-def handler(event):
+def handler(job):
     """
     Main handler for RunPod serverless requests
-    
+
     Expected input format:
     {
         "workflow": { ... ComfyUI API workflow JSON ... },
@@ -204,59 +205,64 @@ def handler(event):
         ]
     }
     """
+    job_id = job.get("id", "unknown")
+    print(f"[Job {job_id}] Starting handler...")
+
     try:
-        job_input = event.get("input", {})
+        job_input = job.get("input", {})
         
         # Validate input
         workflow = job_input.get("workflow")
         if not workflow:
+            print(f"[Job {job_id}] Error: No workflow provided")
             return {"error": "No workflow provided in input"}
-        
+
         # Handle optional prompt injection
         prompt = job_input.get("prompt")
         negative_prompt = job_input.get("negative_prompt", "")
         seed = job_input.get("seed")
-        
+
         if prompt:
+            print(f"[Job {job_id}] Injecting prompt: {prompt[:100]}...")
             workflow = inject_prompt_into_workflow(workflow, prompt, negative_prompt, seed)
         elif seed is not None:
             # Just update seed if provided without prompt
-            for node_id, node in workflow.items():
-                if node.get("class_type") == "KSampler":
-                    node.get("inputs", {})["seed"] = seed
-        
+            workflow = inject_prompt_into_workflow(workflow, "", "", seed)
+
         # Handle input images if provided
         input_images = job_input.get("images", [])
         if input_images:
             uploaded_names = upload_input_images(input_images)
-            print(f"Uploaded {len(uploaded_names)} input images")
-        
+            print(f"[Job {job_id}] Uploaded {len(uploaded_names)} input images")
+
         # Queue the workflow
-        print("Queueing workflow...")
+        print(f"[Job {job_id}] Queueing workflow...")
         prompt_id = queue_prompt(workflow)
-        print(f"Queued with prompt_id: {prompt_id}")
-        
+        print(f"[Job {job_id}] Queued with prompt_id: {prompt_id}")
+
         # Poll for completion
-        print("Waiting for completion...")
+        print(f"[Job {job_id}] Waiting for completion...")
         history = poll_for_completion(prompt_id)
-        print("Workflow completed!")
-        
+        print(f"[Job {job_id}] Workflow completed!")
+
         # Extract output images
         images = get_output_images(history)
-        print(f"Generated {len(images)} images")
-        
+        print(f"[Job {job_id}] Generated {len(images)} images")
+
         if not images:
+            print(f"[Job {job_id}] Warning: No images were generated")
             return {"error": "No images were generated"}
-        
+
+        print(f"[Job {job_id}] Success!")
         return {
             "output": {
                 "images": images,
                 "prompt_id": prompt_id
             }
         }
-        
+
     except Exception as e:
-        print(f"Handler error: {str(e)}")
+        print(f"[Job {job_id}] Handler error: {str(e)}")
         return {"error": str(e)}
 
 

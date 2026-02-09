@@ -9,6 +9,9 @@
             "inputs": {
               "text": "a beautiful sunset over mountains, high quality, detailed",
               "clip": ["30", 0]
+            },
+            "_meta": {
+              "title": "CLIP Text Encode (Positive Prompt)"
             }
           },
           "27": {
@@ -54,6 +57,9 @@
             "inputs": {
               "text": "",
               "clip": ["30", 0]
+            },
+            "_meta": {
+              "title": "CLIP Text Encode (Negative Prompt)"
             }
           },
           "8": {
@@ -89,6 +95,9 @@
             "inputs": {
               "text": "professional portrait photo of a person, studio lighting, sharp focus",
               "clip": ["30", 0]
+            },
+            "_meta": {
+              "title": "CLIP Text Encode (Positive Prompt)"
             }
           },
           "27": {
@@ -134,6 +143,9 @@
             "inputs": {
               "text": "blurry, low quality, distorted",
               "clip": ["30", 0]
+            },
+            "_meta": {
+              "title": "CLIP Text Encode (Negative Prompt)"
             }
           },
           "8": {
