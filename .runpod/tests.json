@@ -4,82 +4,103 @@
       "name": "basic_text_to_image",
       "input": {
         "workflow": {
-          "6": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {
-              "text": "a beautiful sunset over mountains, high quality, detailed",
-              "clip": ["30", 0]
-            },
-            "_meta": {
-              "title": "CLIP Text Encode (Positive Prompt)"
-            }
-          },
-          "27": {
-            "class_type": "EmptySD3LatentImage",
-            "inputs": {
-              "width": 1024,
-              "height": 1024,
-              "batch_size": 1
-            }
-          },
-          "30": {
-            "class_type": "DualCLIPLoader",
-            "inputs": {
-              "clip_name1": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-              "clip_name2": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-              "type": "qwen2_vl"
-            }
-          },
-          "31": {
-            "class_type": "KSampler",
-            "inputs": {
-              "seed": 42,
-              "steps": 4,
-              "cfg": 1.0,
-              "sampler_name": "euler",
-              "scheduler": "normal",
-              "denoise": 1.0,
-              "model": ["32", 0],
-              "positive": ["6", 0],
-              "negative": ["33", 0],
-              "latent_image": ["27", 0]
-            }
-          },
-          "32": {
+          "1": {
             "class_type": "UNETLoader",
             "inputs": {
               "unet_name": "qwen_image_2512_fp8_e4m3fn_scaled_comfyui_4steps_v1.0.safetensors",
-              "weight_dtype": "fp8_e4m3fn_fast"
+              "weight_dtype": "fp8_e4m3fn"
+            },
+            "_meta": {
+              "title": "Load Diffusion Model"
             }
           },
-          "33": {
+          "2": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+              "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+              "type": "lumina2",
+              "device": "default"
+            },
+            "_meta": {
+              "title": "Load CLIP"
+            }
+          },
+          "3": {
+            "class_type": "VAELoader",
+            "inputs": {
+              "vae_name": "qwen_image_vae.safetensors"
+            },
+            "_meta": {
+              "title": "Load VAE"
+            }
+          },
+          "4": {
             "class_type": "CLIPTextEncode",
             "inputs": {
               "text": "",
-              "clip": ["30", 0]
+              "clip": ["2", 0]
             },
             "_meta": {
               "title": "CLIP Text Encode (Negative Prompt)"
             }
           },
-          "8": {
-            "class_type": "VAEDecode",
+          "6": {
+            "class_type": "CLIPTextEncode",
             "inputs": {
-              "samples": ["31", 0],
-              "vae": ["34", 0]
+              "text": "a beautiful sunset over mountains, high quality, detailed",
+              "clip": ["2", 0]
+            },
+            "_meta": {
+              "title": "CLIP Text Encode (Positive Prompt)"
             }
           },
-          "9": {
+          "7": {
+            "class_type": "KSampler",
+            "inputs": {
+              "seed": 42,
+              "steps": 4,
+              "cfg": 1,
+              "sampler_name": "euler",
+              "scheduler": "normal",
+              "denoise": 1,
+              "model": ["1", 0],
+              "positive": ["6", 0],
+              "negative": ["4", 0],
+              "latent_image": ["12", 0]
+            },
+            "_meta": {
+              "title": "KSampler"
+            }
+          },
+          "12": {
+            "class_type": "EmptyLatentImage",
+            "inputs": {
+              "width": 1024,
+              "height": 1024,
+              "batch_size": 1
+            },
+            "_meta": {
+              "title": "Empty Latent Image"
+            }
+          },
+          "25": {
+            "class_type": "VAEDecode",
+            "inputs": {
+              "samples": ["7", 0],
+              "vae": ["3", 0]
+            },
+            "_meta": {
+              "title": "VAE Decode"
+            }
+          },
+          "26": {
             "class_type": "SaveImage",
             "inputs": {
               "filename_prefix": "qwen_output",
-              "images": ["8", 0]
-            }
-          },
-          "34": {
-            "class_type": "VAELoader",
-            "inputs": {
-              "vae_name": "qwen_image_vae.safetensors"
+              "images": ["25", 0]
+            },
+            "_meta": {
+              "title": "Save Image"
             }
           }
         }
@@ -90,82 +111,103 @@
       "name": "portrait_generation",
       "input": {
         "workflow": {
-          "6": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {
-              "text": "professional portrait photo of a person, studio lighting, sharp focus",
-              "clip": ["30", 0]
-            },
-            "_meta": {
-              "title": "CLIP Text Encode (Positive Prompt)"
-            }
-          },
-          "27": {
-            "class_type": "EmptySD3LatentImage",
-            "inputs": {
-              "width": 768,
-              "height": 1024,
-              "batch_size": 1
-            }
-          },
-          "30": {
-            "class_type": "DualCLIPLoader",
-            "inputs": {
-              "clip_name1": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-              "clip_name2": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
-              "type": "qwen2_vl"
-            }
-          },
-          "31": {
-            "class_type": "KSampler",
-            "inputs": {
-              "seed": 123456,
-              "steps": 4,
-              "cfg": 1.0,
-              "sampler_name": "euler",
-              "scheduler": "normal",
-              "denoise": 1.0,
-              "model": ["32", 0],
-              "positive": ["6", 0],
-              "negative": ["33", 0],
-              "latent_image": ["27", 0]
-            }
-          },
-          "32": {
+          "1": {
             "class_type": "UNETLoader",
             "inputs": {
               "unet_name": "qwen_image_2512_fp8_e4m3fn_scaled_comfyui_4steps_v1.0.safetensors",
-              "weight_dtype": "fp8_e4m3fn_fast"
+              "weight_dtype": "fp8_e4m3fn"
+            },
+            "_meta": {
+              "title": "Load Diffusion Model"
             }
           },
-          "33": {
+          "2": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+              "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+              "type": "lumina2",
+              "device": "default"
+            },
+            "_meta": {
+              "title": "Load CLIP"
+            }
+          },
+          "3": {
+            "class_type": "VAELoader",
+            "inputs": {
+              "vae_name": "qwen_image_vae.safetensors"
+            },
+            "_meta": {
+              "title": "Load VAE"
+            }
+          },
+          "4": {
             "class_type": "CLIPTextEncode",
             "inputs": {
               "text": "blurry, low quality, distorted",
-              "clip": ["30", 0]
+              "clip": ["2", 0]
             },
             "_meta": {
               "title": "CLIP Text Encode (Negative Prompt)"
             }
           },
-          "8": {
-            "class_type": "VAEDecode",
+          "6": {
+            "class_type": "CLIPTextEncode",
             "inputs": {
-              "samples": ["31", 0],
-              "vae": ["34", 0]
+              "text": "professional portrait photo of a person, studio lighting, sharp focus",
+              "clip": ["2", 0]
+            },
+            "_meta": {
+              "title": "CLIP Text Encode (Positive Prompt)"
             }
           },
-          "9": {
+          "7": {
+            "class_type": "KSampler",
+            "inputs": {
+              "seed": 123456,
+              "steps": 4,
+              "cfg": 1,
+              "sampler_name": "euler",
+              "scheduler": "normal",
+              "denoise": 1,
+              "model": ["1", 0],
+              "positive": ["6", 0],
+              "negative": ["4", 0],
+              "latent_image": ["12", 0]
+            },
+            "_meta": {
+              "title": "KSampler"
+            }
+          },
+          "12": {
+            "class_type": "EmptyLatentImage",
+            "inputs": {
+              "width": 768,
+              "height": 1024,
+              "batch_size": 1
+            },
+            "_meta": {
+              "title": "Empty Latent Image"
+            }
+          },
+          "25": {
+            "class_type": "VAEDecode",
+            "inputs": {
+              "samples": ["7", 0],
+              "vae": ["3", 0]
+            },
+            "_meta": {
+              "title": "VAE Decode"
+            }
+          },
+          "26": {
             "class_type": "SaveImage",
             "inputs": {
               "filename_prefix": "qwen_portrait",
-              "images": ["8", 0]
-            }
-          },
-          "34": {
-            "class_type": "VAELoader",
-            "inputs": {
-              "vae_name": "qwen_image_vae.safetensors"
+              "images": ["25", 0]
+            },
+            "_meta": {
+              "title": "Save Image"
             }
           }
         }
