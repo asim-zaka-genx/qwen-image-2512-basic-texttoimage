@@ -1,6 +1,9 @@
 # clean base image containing only comfyui, comfy-cli and comfyui-manager
 FROM runpod/worker-comfyui:5.5.1-base
 
+# Update ComfyUI to latest version for Qwen support (qwen2_vl CLIP type)
+RUN cd /comfyui && git pull origin master
+
 # download models into comfyui (note: use /resolve/main/ not /blob/main/ for HuggingFace)
 RUN comfy model download --url https://huggingface.co/lightx2v/Qwen-Image-2512-Lightning/resolve/main/qwen_image_2512_fp8_e4m3fn_scaled_comfyui_4steps_v1.0.safetensors --relative-path models/diffusion_models --filename qwen_image_2512_fp8_e4m3fn_scaled_comfyui_4steps_v1.0.safetensors
 RUN comfy model download --url https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/vae/qwen_image_vae.safetensors --relative-path models/vae --filename qwen_image_vae.safetensors
