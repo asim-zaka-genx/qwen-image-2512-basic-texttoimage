@@ -1,3 +1,4 @@
+[![Runpod](https://api.runpod.io/badge/asim-zaka-genx/qwen-image-2512-basic-texttoimage)](https://console.runpod.io/hub/asim-zaka-genx/qwen-image-2512-basic-texttoimage)
 # qwen-image-2512-basic-texttoimage
 
 Dockerized ComfyUI workflow: Qwen Image 2512 - Basic Text to image workflow

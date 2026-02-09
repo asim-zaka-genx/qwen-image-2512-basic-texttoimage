@@ -1,0 +1,75 @@
+{
+  "title": "Qwen Image 2512 Lightning - Text to Image",
+  "description": "Fast 4-step text-to-image generation using Qwen Image 2512 Lightning model (FP8). Includes custom nodes: ResolutionSelectorPlus and rgthree-comfy.",
+  "type": "serverless",
+  "category": "image",
+  "iconUrl": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 30,
+    "presets": [
+      {
+        "name": "Default (4 Steps)",
+        "defaults": {
+          "DEFAULT_STEPS": "4",
+          "DEFAULT_CFG": "1.0"
+        }
+      }
+    ],
+    "env": [
+      {
+        "key": "COMFY_API_AVAILABLE_INTERVAL_MS",
+        "value": "500"
+      },
+      {
+        "key": "COMFY_POLLING_INTERVAL_MS", 
+        "value": "250"
+      },
+      {
+        "key": "WEBHOOK_URL",
+        "input": {
+          "name": "Webhook URL",
+          "type": "string",
+          "description": "Optional URL to receive job completion callbacks",
+          "default": ""
+        }
+      },
+      {
+        "key": "BUCKET_ENDPOINT_URL",
+        "input": {
+          "name": "S3 Endpoint URL",
+          "type": "string",
+          "description": "S3-compatible endpoint for image upload (optional)",
+          "default": ""
+        }
+      },
+      {
+        "key": "BUCKET_ACCESS_KEY_ID",
+        "input": {
+          "name": "S3 Access Key",
+          "type": "secret",
+          "description": "S3 access key for image upload (optional)",
+          "default": ""
+        }
+      },
+      {
+        "key": "BUCKET_SECRET_ACCESS_KEY",
+        "input": {
+          "name": "S3 Secret Key",
+          "type": "secret",
+          "description": "S3 secret key for image upload (optional)",
+          "default": ""
+        }
+      },
+      {
+        "key": "BUCKET_NAME",
+        "input": {
+          "name": "S3 Bucket Name",
+          "type": "string",
+          "description": "Bucket name for image upload (optional)",
+          "default": ""
+        }
+      }
+    ]
+  }
+}

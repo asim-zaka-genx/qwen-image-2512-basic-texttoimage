@@ -1,0 +1,179 @@
+{
+  "tests": [
+    {
+      "name": "basic_text_to_image",
+      "input": {
+        "workflow": {
+          "6": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+              "text": "a beautiful sunset over mountains, high quality, detailed",
+              "clip": ["30", 0]
+            }
+          },
+          "27": {
+            "class_type": "EmptySD3LatentImage",
+            "inputs": {
+              "width": 1024,
+              "height": 1024,
+              "batch_size": 1
+            }
+          },
+          "30": {
+            "class_type": "DualCLIPLoader",
+            "inputs": {
+              "clip_name1": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+              "clip_name2": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+              "type": "qwen2_vl"
+            }
+          },
+          "31": {
+            "class_type": "KSampler",
+            "inputs": {
+              "seed": 42,
+              "steps": 4,
+              "cfg": 1.0,
+              "sampler_name": "euler",
+              "scheduler": "normal",
+              "denoise": 1.0,
+              "model": ["32", 0],
+              "positive": ["6", 0],
+              "negative": ["33", 0],
+              "latent_image": ["27", 0]
+            }
+          },
+          "32": {
+            "class_type": "UNETLoader",
+            "inputs": {
+              "unet_name": "qwen_image_2512_fp8_e4m3fn_scaled_comfyui_4steps_v1.0.safetensors",
+              "weight_dtype": "fp8_e4m3fn_fast"
+            }
+          },
+          "33": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+              "text": "",
+              "clip": ["30", 0]
+            }
+          },
+          "8": {
+            "class_type": "VAEDecode",
+            "inputs": {
+              "samples": ["31", 0],
+              "vae": ["34", 0]
+            }
+          },
+          "9": {
+            "class_type": "SaveImage",
+            "inputs": {
+              "filename_prefix": "qwen_output",
+              "images": ["8", 0]
+            }
+          },
+          "34": {
+            "class_type": "VAELoader",
+            "inputs": {
+              "vae_name": "qwen_image_vae.safetensors"
+            }
+          }
+        }
+      },
+      "timeout": 120000
+    },
+    {
+      "name": "portrait_generation",
+      "input": {
+        "workflow": {
+          "6": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+              "text": "professional portrait photo of a person, studio lighting, sharp focus",
+              "clip": ["30", 0]
+            }
+          },
+          "27": {
+            "class_type": "EmptySD3LatentImage",
+            "inputs": {
+              "width": 768,
+              "height": 1024,
+              "batch_size": 1
+            }
+          },
+          "30": {
+            "class_type": "DualCLIPLoader",
+            "inputs": {
+              "clip_name1": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+              "clip_name2": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+              "type": "qwen2_vl"
+            }
+          },
+          "31": {
+            "class_type": "KSampler",
+            "inputs": {
+              "seed": 123456,
+              "steps": 4,
+              "cfg": 1.0,
+              "sampler_name": "euler",
+              "scheduler": "normal",
+              "denoise": 1.0,
+              "model": ["32", 0],
+              "positive": ["6", 0],
+              "negative": ["33", 0],
+              "latent_image": ["27", 0]
+            }
+          },
+          "32": {
+            "class_type": "UNETLoader",
+            "inputs": {
+              "unet_name": "qwen_image_2512_fp8_e4m3fn_scaled_comfyui_4steps_v1.0.safetensors",
+              "weight_dtype": "fp8_e4m3fn_fast"
+            }
+          },
+          "33": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+              "text": "blurry, low quality, distorted",
+              "clip": ["30", 0]
+            }
+          },
+          "8": {
+            "class_type": "VAEDecode",
+            "inputs": {
+              "samples": ["31", 0],
+              "vae": ["34", 0]
+            }
+          },
+          "9": {
+            "class_type": "SaveImage",
+            "inputs": {
+              "filename_prefix": "qwen_portrait",
+              "images": ["8", 0]
+            }
+          },
+          "34": {
+            "class_type": "VAELoader",
+            "inputs": {
+              "vae_name": "qwen_image_vae.safetensors"
+            }
+          }
+        }
+      },
+      "timeout": 120000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuCount": 1,
+    "env": [],
+    "allowedCudaVersions": [
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1",
+      "12.0"
+    ]
+  }
+}
